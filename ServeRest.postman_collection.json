@@ -1,0 +1,518 @@
+{
+	"info": {
+		"_postman_id": "e739abe3-6d7a-4ddf-aab2-65c98d53f28e",
+		"name": "ServeRest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11147968"
+	},
+	"item": [
+		{
+			"name": "Mock",
+			"item": [
+				{
+					"name": "getNewUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//capturar o nome, e-mail e senha",
+									"//console.log(pm.response.json().results[0].name.first)",
+									"pm.globals.set(\"userName\", pm.response.json().results[0].name.first)",
+									"",
+									"//console.log(pm.response.json().results[0].email)",
+									"pm.globals.set(\"userEmail\", pm.response.json().results[0].email)",
+									"",
+									"//console.log(pm.response.json().results[0].login.password)",
+									"pm.globals.set(\"UserPassword\", pm.response.json().results[0].login.password)",
+									"",
+									"var uui = pm.response.json().results[0].login.uuid",
+									"var name = pm.response.json().results[0].name.first",
+									"pm.globals.set(\"newPassword\", uui+name)",
+									"//console.log(uui+name)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://randomuser.me/api/",
+							"protocol": "https",
+							"host": [
+								"randomuser",
+								"me"
+							],
+							"path": [
+								"api",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Usuários",
+			"item": [
+				{
+					"name": "newUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//status code ",
+									"pm.test(\"Status code is 201\", ()=>{",
+									"    pm.response.to.have.status(201)",
+									"})",
+									"",
+									"//validar mensagem",
+									"pm.test(\"Check 'message' return\", function(){",
+									"    pm.expect(pm.response.json().message).contains(\"sucesso\")",
+									"})",
+									"",
+									"// capturar o ID",
+									"pm.test(\"Get id user\", function(){",
+									"    pm.globals.set(\"_id\",pm.response.json()._id)",
+									"})",
+									"// validar o contrato",
+									"pm.test(\"Schema is valid\", function(){",
+									"    pm.expect(tv4.validate(pm.response.json(),pm.globals.get(\"schema\"))).to.be.true;",
+									"",
+									"})",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// limpar variavel global",
+									"pm.globals.unset(\"schema\");",
+									"",
+									"//setar o schema na variavel global ",
+									"pm.globals.set(\"schema\",{",
+									"  \"$schema\": \"http://json-schema.org/draft-04/schema#\",",
+									"  \"type\": \"object\",",
+									"  \"properties\": {",
+									"    \"message\": {",
+									"      \"type\": \"string\"",
+									"    },",
+									"    \"_id\": {",
+									"      \"type\": \"string\"",
+									"    }",
+									"  },",
+									"  \"required\": [",
+									"    \"message\",",
+									"    \"_id\"",
+									"  ]",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"{{userName}}\",\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{UserPassword}}\",\n  \"administrador\": \"true\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/usuarios",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"usuarios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserId",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//limpar variavel global ",
+									"pm.globals.unset(\"variable_key\");",
+									"",
+									"//setar o schema na variavel global ",
+									"",
+									"pm.globals.set (\"schema\", {",
+									"  \"$schema\": \"http://json-schema.org/draft-04/schema#\",",
+									"  \"type\": \"object\",",
+									"  \"properties\": {",
+									"    \"nome\": {",
+									"      \"type\": \"string\"",
+									"    },",
+									"    \"email\": {",
+									"      \"type\": \"string\"",
+									"    },",
+									"    \"password\": {",
+									"      \"type\": \"string\"",
+									"    },",
+									"    \"administrador\": {",
+									"      \"type\": \"string\"",
+									"    },",
+									"    \"_id\": {",
+									"      \"type\": \"string\"",
+									"    }",
+									"  },",
+									"  \"required\": [",
+									"    \"nome\",",
+									"    \"email\",",
+									"    \"password\",",
+									"    \"administrador\",",
+									"    \"_id\"",
+									"  ]",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// validar status code ",
+									"pm.test(\"Status code is 200\",()=>{",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"// validar se o retorno é um obj",
+									"pm.test(\"Validate is object\", ()=>{",
+									"    pm.expect(pm.response.json()).to.be.an(\"object\")",
+									"})",
+									"",
+									"//validar o Id do usuário",
+									"pm.test(\"Validate _id user\", ()=>{",
+									"    pm.expect(pm.response.json()._id).to.be.eql(pm.globals.get(\"_id\"));",
+									"})",
+									"",
+									"//Validar o e-mail do usuário",
+									"pm.test(\"Validate e-mail is valid\", function(){",
+									"    pm.expect(pm.response.json().email).to.be.eql(pm.globals.get(\"userEmail\"))",
+									"})",
+									"//validar contrato",
+									"pm.test(\"Schema is valid\", ()=>{",
+									"    pm.expect(tv4.validate(pm.response.json(), pm.globals.get(\"schema\"))).to.be.true",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/usuarios/{{_id}}",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"usuarios",
+								"{{_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateUser",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//limpar variavel",
+									"pm.globals.unset(\"schema\");",
+									"",
+									"//setar o shcame na variavel global",
+									"pm.globals.set(\"schema\", {",
+									"  \"$schema\": \"http://json-schema.org/draft-04/schema#\",",
+									"  \"type\": \"object\",",
+									"  \"properties\": {",
+									"    \"message\": {",
+									"      \"type\": \"string\"",
+									"    }",
+									"  },",
+									"  \"required\": [",
+									"    \"message\"",
+									"  ]",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const obj = pm.response.json()",
+									"",
+									"const Ajv = require(\"ajv\")",
+									"const ajv = new Ajv()",
+									"//status code ",
+									"pm.test(\"Satus code is 200\", ()=>{",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"//validar se o retorno é um objeto",
+									"pm.test(\"Validate is an objetc\", ()=>{",
+									"    pm.expect(obj).to.be.an(\"object\")",
+									"})",
+									"",
+									"//validar o retorno da mensagem ",
+									"pm.test(\"Validate menssage return\", ()=>{",
+									"    pm.expect(obj.message).to.contains(\"sucesso\")",
+									"})",
+									"",
+									"//validar contrato",
+									"pm.test(\"Schema is valid\", ()=>{",
+									"    pm.expect(ajv.validate(obj, pm.globals.get(\"schema\"))).to.be.true",
+									"})",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"{{userName}}\",\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{newPassword}}\",\n  \"administrador\": \"true\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/usuarios/{{_id}}",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"usuarios",
+								"{{_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserIdChange",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//limpar variavel ",
+									"pm.globals.unset(\"schema\");",
+									"",
+									"//setar o schema",
+									"pm.globals.set(\"schema\", {",
+									"  \"$schema\": \"http://json-schema.org/draft-04/schema#\",",
+									"  \"type\": \"object\",",
+									"  \"properties\": {",
+									"    \"nome\": {",
+									"      \"type\": \"string\"",
+									"    },",
+									"    \"email\": {",
+									"      \"type\": \"string\"",
+									"    },",
+									"    \"password\": {",
+									"      \"type\": \"string\"",
+									"    },",
+									"    \"administrador\": {",
+									"      \"type\": \"string\"",
+									"    },",
+									"    \"_id\": {",
+									"      \"type\": \"string\"",
+									"    }",
+									"  },",
+									"  \"required\": [",
+									"    \"nome\",",
+									"    \"email\",",
+									"    \"password\",",
+									"    \"administrador\",",
+									"    \"_id\"",
+									"  ]",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const Ajv = require(\"ajv\")",
+									"const ajv = new Ajv()",
+									"",
+									"const obj = pm.response.json()",
+									"//validar status code",
+									"pm.test(\"Status code is 200\", ()=>{",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"//validar o retorno é um objeto",
+									"pm.test(\"Validate is an object\", ()=>{",
+									"    pm.expect(obj).to.be.an(\"object\")",
+									"})",
+									"",
+									"//validar o alteração ",
+									"pm.test(\"Validate update\", ()=>{",
+									"    pm.expect(obj.password).to.be.eql(pm.globals.get(\"newPassword\"))",
+									"})",
+									"",
+									"//validar contrato",
+									"pm.test(\"Schema is valid\", ()=>{",
+									"    pm.expect(ajv.validate(obj, pm.globals.get(\"schema\"))).to.be.true",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/usuarios/{{_id}}",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"usuarios",
+								"{{_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deletUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Delet is true\", ()=>{",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Registro excluído com sucesso\")",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/usuarios/{{_id}}",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"usuarios",
+								"{{_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
